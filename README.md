@@ -44,6 +44,8 @@ Note:
 
 # MS Windows - Powershell Script
 NOTE - Makes the assumption that jstack is on the Windows Environmental Variables PATH
+NOTE - The Powershell must be run as Administrator
+NOTE - May need to bypass the Windows Server execution policy with the flag : –ExecutionPolicy Bypass
 
 ## Usage
 Command:
