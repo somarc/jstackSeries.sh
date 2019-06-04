@@ -1,4 +1,5 @@
 ## Usage : jstackSeries.ps1 <pid> <num_threads> <time_between_threads_seconds>
+Set-ExecutionPolicy Bypass -Scope Process
 $AEM_PID = $args[0]
 $NUMTHREADS = $args[1]
 $SLEEP_TIME_SEC = $args[2]
