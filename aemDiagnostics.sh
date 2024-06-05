@@ -53,7 +53,8 @@ if [ -z "$AEM_JAR" ]; then
   echo "Debugging information:"
   echo "Process arguments for PID $pid:"
   ps -p $pid -o args=
-  exit 1
+  # Use script's directory as fallback
+  AEM_JAR=$(dirname "$0")
 fi
 
 echo "AEM JAR file: $AEM_JAR"
@@ -63,8 +64,8 @@ verbose_echo "Determining the absolute path to AEM_HOME"
 if [ -f "$AEM_JAR" ]; then
   AEM_HOME=$(dirname "$(realpath "$AEM_JAR" 2>/dev/null || readlink -f "$AEM_JAR")")
 else
-  # Try to resolve the path manually
-  AEM_HOME=$(dirname "$(cd "$(dirname "$AEM_JAR")"; pwd -P)/$(basename "$AEM_JAR")")
+  # Use script's directory as fallback
+  AEM_HOME=$(dirname "$0")
 fi
 
 if [ -z "$AEM_HOME" ] || [ ! -d "$AEM_HOME" ]; then
@@ -72,7 +73,8 @@ if [ -z "$AEM_HOME" ] || [ ! -d "$AEM_HOME" ]; then
   echo "Debugging information:"
   echo "AEM_JAR: $AEM_JAR"
   echo "Resolved AEM_HOME: $AEM_HOME"
-  exit 1
+  # Use script's directory as fallback
+  AEM_HOME=$(dirname "$0")
 fi
 
 count=${1:-10}  # defaults to 10 times
