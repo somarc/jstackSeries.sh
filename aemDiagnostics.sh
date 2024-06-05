@@ -33,10 +33,19 @@ fi
 
 echo "AEM JAR file: $AEM_JAR"
 
-AEM_HOME=$(dirname "$AEM_JAR")
+# Determine the absolute path to AEM_HOME
+if [ -f "$AEM_JAR" ]; then
+  AEM_HOME=$(dirname "$(realpath "$AEM_JAR" 2>/dev/null || readlink -f "$AEM_JAR")")
+else
+  # Try to resolve the path manually
+  AEM_HOME=$(dirname "$(cd "$(dirname "$AEM_JAR")"; pwd -P)/$(basename "$AEM_JAR")")
+fi
 
-if [ -z "$AEM_HOME" ]; then
+if [ -z "$AEM_HOME" ] || [ ! -d "$AEM_HOME" ]; then
   echo >&2 "Error: Unable to determine AEM_HOME"
+  echo "Debugging information:"
+  echo "AEM_JAR: $AEM_JAR"
+  echo "Resolved AEM_HOME: $AEM_HOME"
   exit 1
 fi
 
@@ -167,6 +176,17 @@ if [ ${#GC_LOG_FILES[@]} -gt 0 ]; then
     done
 else
     echo "No GC log files found."
+fi
+
+# Create a tar.gz archive of the output directory
+ARCHIVE_NAME="${DUMP_DIR%/}.tar.gz"
+echo "Creating archive: $ARCHIVE_NAME"
+tar -czf $ARCHIVE_NAME -C $(dirname $DUMP_DIR) $(basename $DUMP_DIR)
+if [ $? -eq 0 ]; then
+    echo "Archive created successfully: $ARCHIVE_NAME"
+else
+    echo "Error: Failed to create archive"
+    exit 1
 fi
 
 echo "AEM diagnostic script completed."
