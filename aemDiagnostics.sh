@@ -105,8 +105,10 @@ collect_io_stats_macos() {
 OS="$(uname)"
 if [ "$OS" == "Linux" ]; then
     collect_io_stats=collect_io_stats_linux
+    TOP_CMD="top -b -n 1 -p $pid"
 elif [ "$OS" == "Darwin" ]; then
     collect_io_stats=collect_io_stats_macos
+    TOP_CMD="top -pid $pid -l 1"
 else
     echo "Unsupported operating system: $OS"
     exit 1
@@ -126,8 +128,8 @@ do
   fi
   
   echo "Capturing top output for PID $pid at $timestamp"
-  echo "Executing command: top -pid $pid -l 1 > ${DUMP_DIR}top.$pid.$timestamp"
-  top -pid $pid -l 1 > ${DUMP_DIR}top.$pid.$timestamp 2>${DUMP_DIR}top_error.$pid.$timestamp
+  echo "Executing command: $TOP_CMD > ${DUMP_DIR}top.$pid.$timestamp"
+  $TOP_CMD > ${DUMP_DIR}top.$pid.$timestamp 2>${DUMP_DIR}top_error.$pid.$timestamp
   if [ $? -ne 0 ]; then
     echo "Error: Failed to capture top output for PID $pid"
     cat ${DUMP_DIR}top_error.$pid.$timestamp
