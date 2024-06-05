@@ -171,8 +171,9 @@ fi
 if [ ${#GC_LOG_FILES[@]} -gt 0 ]; then
     echo "Found GC log files: ${GC_LOG_FILES[@]}"
     for GC_LOG_FILE in "${GC_LOG_FILES[@]}"; do
-        cp $AEM_HOME/$GC_LOG_FILE $DUMP_DIR
-        echo "GC log file $GC_LOG_FILE copied to $DUMP_DIR"
+        ABSOLUTE_GC_LOG_FILE=$(realpath $AEM_HOME/$GC_LOG_FILE)
+        cp $ABSOLUTE_GC_LOG_FILE $DUMP_DIR
+        echo "GC log file $ABSOLUTE_GC_LOG_FILE copied to $DUMP_DIR"
     done
 else
     echo "No GC log files found."
