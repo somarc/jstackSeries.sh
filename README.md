@@ -1,7 +1,76 @@
+- [Linux - aemDiagnostics.sh](#aemdiagnostics)
 - [Linux Java - jstackSeries.sh](#jstackseriessh)
 - [Linux AEM - jstackSeriesAEM.sh](#jstackseriesaemsh)
 - [MS Windows - Powershell Script - jstackSeries_powershell.ps1](#ms-windows---powershell-script)
 <!-- toc -->
+
+# aemDiagnostics.sh
+
+### AEM Diagnostic Script
+#### Overview
+This comprehensive AEM (Adobe Experience Manager) diagnostic script is designed to gather various diagnostic information about an AEM instance running on a Linux system. It identifies the AEM process, determines the JAVA_HOME and AEM JAR file, and collects various system statistics and logs to help diagnose issues with the AEM instance.
+
+#### Prerequisites
+The script requires ps, grep, awk, dirname, readlink, which, iostat, vmstat, sar, and df commands to be available on the system.
+Ensure that the script has execute permissions. You can set the execute permission using the following command:
+chmod +x aemDiagnostics.sh
+
+#### Usage
+` ./aemDiagnostics.sh [ <count> [ <delay> ] ] `
+
+- count (optional): The number of times to collect diagnostic information. Defaults to 10 if not provided.
+- delay (optional): The delay in seconds between each collection of diagnostic information. Defaults to 1 second if not provided.
+
+#### Example
+`./aemDiagnostics.sh 5 2`
+
+This command will run the diagnostic script 5 times with a 2-second delay between each run.
+
+#### Script Details
+
+##### Determine PID of the AEM Process
+The script identifies the PID of the AEM process by searching for processes that match certain keywords (author, publish, cq, aem) and contain a .jar file.
+
+`pid=$(ps aux | grep -E "(author|publish|cq|aem).*\.jar" | grep -v grep | awk '{print $2}' | head -1)`
+
+##### Determine JAVA_HOME
+The script extracts the Java command used by the AEM process and determines the Java binary directory.
+
+`JAVA_CMD=$(ps -p $pid -o args= | grep -oE "java[^ ]*")`
+
+`JAVA_BIN=$(dirname $(dirname $(readlink -f $(which java))))/bin/`
+
+##### Determine AEM JAR
+The script identifies the AEM JAR file used by the AEM process.
+
+`AEM_JAR=$(ps -p $pid -o args= | grep -E "(author|publish|cq|aem).*\.jar" | grep -oE "\-jar [^ ]*\.jar" | awk '{print $2}' | head -1)`
+
+##### Collect Diagnostic Information
+The script collects various system statistics and logs, including:
+
+- I/O statistics using iostat
+- Virtual memory statistics using vmstat
+- System activity report using sar
+- Disk usage statistics using df
+
+##### Generate Diagnostic Files
+The script generates diagnostic files under the crx-quickstart/logs/diagnostics/ directory within the AEM home directory. The files include:
+
+- jstack output
+- top output
+- I/O statistics logs
+- Check for JVM GC Log Flags
+- The script checks for JVM GC log flags and copies the GC log files to the diagnostic output directory if found.
+
+##### Error Handling
+If the script encounters any errors, it will output an error message and exit. Common errors include:
+
+- Missing PID
+- Unable to locate AEM JAR file
+- Failed to capture jstack or top output (sudo needed perhaps)
+
+This AEM diagnostic script is a powerful tool for gathering diagnostic information about an AEM instance. By following the instructions in this README.md file, you can effectively use the script to diagnose and troubleshoot issues with your AEM instance.
+
 
 # jstackSeries.sh
 Bash jstack script for capturing a series of thread dumps from a Java process on Linux.
